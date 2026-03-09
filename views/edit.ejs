@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post - My Node Blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container edit-container" style="max-width: 600px; margin-top: 50px;"> 
+        
+        <h1>Edit Post</h1>
+
+        <% if (typeof errorMessage !== 'undefined') { %>
+            <div class="error-alert">
+                <strong>Oops!</strong> <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <form action="/edit/<%= post.id %>" method="POST" enctype="multipart/form-data">
+            
+            <div>
+                <label for="title">Title:</label><br>
+                <div class="input-wrapper">
+                    <input type="text" id="title" name="title" maxlength="50" value="<%= post.title %>" required>
+                    <span id="title-counter" class="char-counter">50</span>
+                </div>
+            </div>
+            <br>
+            
+            <div>
+                <label for="content">Content:</label><br>
+                <div class="input-wrapper">
+                    <textarea id="content" name="content" rows="5" maxlength="500" required><%= post.content %></textarea>
+                    <span id="content-counter" class="char-counter">500</span>
+                </div>
+            </div>
+            <br>
+            
+            <div>
+                <label for="image">Upload a New Image:</label><br>
+                <input type="file" id="image" name="image" accept="image/*">
+                <% if (post.imagePath) { %>
+                    <small>Leave blank to keep your current image.</small>
+                <% } %>
+            </div>
+            <br>
+
+            <button type="submit">Save Changes</button>
+            <a href="/" class="cancel-btn" style="text-align: center; display: block; margin-top: 15px; color: #7f8c8d; text-decoration: none;">Cancel</a>
+        </form>
+
+    </div> 
+
+    <script>
+        function setupCounter(inputId, counterId, maxLength) {
+            const inputElement = document.getElementById(inputId);
+            const counterElement = document.getElementById(counterId);
+
+            // Calculate initial count on page load (since fields are pre-filled)
+            counterElement.textContent = maxLength - inputElement.value.length;
+
+            inputElement.addEventListener('input', () => {
+                const remaining = maxLength - inputElement.value.length;
+                counterElement.textContent = remaining;
+            });
+        }
+
+        setupCounter('title', 'title-counter', 50);
+        setupCounter('content', 'content-counter', 500);
+    </script>
+</body>
+</html>

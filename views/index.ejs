@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Node Blog</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container layout-grid"> 
+        
+        <div class="sidebar">
+            <h2>Create a Post</h2>
+            <form action="/create" method="POST" enctype="multipart/form-data">
+                <div>
+                    <label for="title">Title:</label><br>
+                    <div class="input-wrapper">
+                        <input type="text" id="title" name="title" maxlength="50" required>
+                        <span id="title-counter" class="char-counter">50</span>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <label for="content">Content:</label><br>
+                    <div class="input-wrapper">
+                        <textarea id="content" name="content" rows="5" maxlength="500" required></textarea>
+                        <span id="content-counter" class="char-counter">500</span>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <label for="image">Upload an Image (Optional):</label><br>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+                <br>
+                <button type="submit">Publish Post</button>
+            </form>
+        </div>
+
+        <div class="main-content">
+            <h2>All Posts</h2>
+            
+            <% if (typeof errorMessage !== 'undefined') { %>
+                <div class="error-alert">
+                    <strong>Oops!</strong> <%= errorMessage %>
+                </div>
+            <% } %>
+            <% if (allPosts.length === 0) { %>
+                <div class="empty-state">
+                    <h3>It's pretty quiet here...</h3>
+                    <p>Use the form on the left to publish your first post!</p>
+                </div>
+            <% } else { %>
+                <% [...allPosts].reverse().forEach(post => { %>
+                    <article>
+                        <h3><%= post.title %></h3>
+                        <p><%= post.content %></p>
+                        
+                        <% if (post.imagePath) { %>
+                            <img src="<%= post.imagePath %>" alt="Post Image" onclick="openModal('<%= post.imagePath %>')">
+                        <% } %>
+                        
+                        <% if (post.isEdited) { %>
+                            <small style="color: #e67e22;">Last edited on: <%= post.date %></small>
+                        <% } else { %>
+                            <small>Posted on: <%= post.date %></small>
+                        <% } %>
+                        
+                        <div class="post-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                            <a href="/edit/<%= post.id %>" class="edit-btn">Edit</a>
+                            <form action="/delete/<%= post.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this post? This cannot be undone.');">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </article>
+                <% }) %>
+            <% } %>
+        </div>
+
+    </div> 
+
+    <div id="imageModal" class="modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        // --- Character Counter Logic ---
+        function setupCounter(inputId, counterId, maxLength) {
+            const inputElement = document.getElementById(inputId);
+            const counterElement = document.getElementById(counterId);
+
+            inputElement.addEventListener('input', () => {
+                const remaining = maxLength - inputElement.value.length;
+                counterElement.textContent = remaining;
+            });
+        }
+
+        setupCounter('title', 'title-counter', 50);
+        setupCounter('content', 'content-counter', 500);
+
+        // --- Lightbox Modal Logic ---
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modal.style.display = "block";
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
